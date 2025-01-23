@@ -11,19 +11,19 @@ class Character:
     def attack(self, opponent):
         damage = random.randint(5, self.attack_power) #this randomizes the attack power of the attacker from 5 to their max attack power
         opponent.health -= damage #this subtracts the damage from the opponent's health
-        print(f"{self.name} attacks {opponent.name} for {damage} damage!") #using random damage variable here
+        print(f"{self.name.title()} attacks {opponent.name.title()} for {damage} damage!") #using random damage variable here
         # if opponent.health <= 0:
-        #     print(f"{opponent.name} has been defeated!")
+        # print(f"{opponent.name} has been defeated!")
         #The two above lines were built into starter code and are redundant b/c it's already in an
         #if statement in the battle function below.
 
-    def display_stats(self):
-        print(f"{self.name}'s Stats:")
+    def display_stats(self): #I changed this from the starter code b/c I think the stats displayed this way is easier to read
+        print(f"{self.name.title()}'s Stats:")
         print(f"Health: {self.health}/{self.max_health}")
         print(f"Attack Power: {self.attack_power}")
 
-    def player_health(self):
-        print(f"{self.name} health is now {self.health}")
+    def player_health(self): #added this to show player's health after every turn as the Wizard's does
+        print(f"{self.name.title()} health is now {self.health}")
 
     def heal(self):
         max_heal = self.health * 0.25
@@ -43,11 +43,11 @@ class Warrior(Character):
 
     def sword_strike (self, opponent):
         opponent.health -= 25
-        print(f"{self.name} dealt a devestation sword strike dealing {opponent.name} {self.attack_power} damage!")
+        print(f"{self.name.title()} dealt a devestation sword strike dealing {opponent.name.title()} {self.attack_power} damage!")
     
     def deflect (self, opponent):
         opponent.attack_power = opponent.attack_power//2 #this cuts opponent's attack power in half rounded down to nearest integer
-        print(f"{self.name} deflected a the strike from {opponent.name}, thus minimizing damage to {opponent.attack_power//2}")
+        print(f"{self.name.title()} deflected a the strike from {opponent.name.title()}, thus minimizing damage to {opponent.attack_power//2}")
 
     def unique_abilities(self, opponent):
         print("Choose which unique ability to use: ")
@@ -171,15 +171,20 @@ def create_character():
     elif class_choice == '2':
         return Mage(name)
     elif class_choice == '3':
-        pass  # Implement Archer class
+        return Archer(name)
     elif class_choice == '4':
-        pass  # Implement Paladin class
+        return Paladin(name)
     else:
         print("Invalid choice. Defaulting to Warrior.")
         return Warrior(name)
 
 def battle(player, wizard):
     while wizard.health > 0 and player.health > 0:
+
+        # if wizard.health > 0:
+        #     wizard.attack(player)
+        #     wizard.regenerate()
+
         print("\n--- Your Turn ---")
         print("1. Attack")
         print("2. Use Special Ability")
@@ -197,11 +202,16 @@ def battle(player, wizard):
         elif choice == '4':
             player.display_stats()
         else:
-            print("Invalid choice. Try again.")
+            print("Invalid choice. Defaulting to attack.")
+            player.attack(wizard)
 
         if wizard.health > 0:
-            wizard.attack(player)
-            wizard.regenerate()
+            if player is Archer and player.evade(wizard):
+                wizard.regenerate()
+                break
+            else:
+                wizard.attack(player)
+                wizard.regenerate()
 
         if player.health > 0:
             print(f"{player.name}'s health is now {player.health}")
