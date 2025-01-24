@@ -60,8 +60,8 @@ class Warrior(Character):
         elif choice == "2":
             self.deflect(opponent)
         else:
-            print("You selected an invalid choice. Defaulting to Sword Strike.")
-            self.sword_strike(opponent)
+            print("You selected an invalid choice. Defaulting to basic attack.")
+            self.attack(opponent)
 
 # Mage class (inherits from Character)
 class Mage(Character):
@@ -74,7 +74,7 @@ class Mage(Character):
     
     def fireball (self, opponent):
         opponent.health -= 35
-        print(f"{self.name} cast a fireball at {opponent.name} dealing 35 {self.max_health} in damage!")
+        print(f"{self.name} cast a fireball at {opponent.name} dealing 35 points in damage!")
     
     def unique_abilities(self, opponent):
         print("Choose which unique ability to use: ")
@@ -87,8 +87,8 @@ class Mage(Character):
         elif choice == "2":
             self.fireball(opponent)
         else:
-            print("You selected an invalid choice. Defaulting to Ice Storm.")
-            self.ice_storm(opponent)
+            print("You selected an invalid choice. Defaulting to basic attack.")
+            self.attack(opponent)
     
 # EvilWizard class (inherits from Character)
 class EvilWizard(Character):
@@ -111,22 +111,32 @@ class Archer(Character):
             print(f"{opponent.name} has been defeated!")
         
     def evade(self, opponent):
-        opponent.attack_power = 0
-        print(f"{self.name} evaded attack from {opponent.name} and was dealt 0 damage!")
+        #50% chance to evade
+        success = random.random() < 0.5
+        if success:
+            print(f"{self.name} evaded attack from {opponent.name} and was dealt 0 damage!")
+            return True
+        else:
+            print(f"{self.name} failed to evade the attack from {opponent.name}")
+            return False
 
     def unique_abilities(self, opponent):
         print("Choose which unique ability to use: ")
-        print("1. DoubleShot")
+        print("1. Double Shot")
         print("2. Evade")
 
         choice = input("Enter the number of your choice: ")
         if choice == "1":
             self.double_shot(opponent)
         elif choice == "2":
-            self.evade(opponent)
+            if self.evade(opponent):
+                print(f"{self.name} avoided all damage this turn!")
+                return True
         else:
             print("You selected an invalid choice. Defaulting to attack.")
             self.attack(opponent)
+        
+        return False
 
 # Create Paladin class 
 class Paladin(Character):
@@ -196,7 +206,13 @@ def battle(player, wizard):
         if choice == '1':
             player.attack(wizard)
         elif choice == '2':
-            player.unique_abilities(wizard)
+            if isinstance(player, Archer):
+                player.unique_abilities(wizard)
+                #allow Archer to user evade ability directly
+                if player.evade(wizard):
+                    continue #this skips the wizard's turn if evade is successful
+            else:
+                player.unique_abilities(wizard)
         elif choice == '3':
             player.heal()
         elif choice == '4':
@@ -206,12 +222,9 @@ def battle(player, wizard):
             player.attack(wizard)
 
         if wizard.health > 0:
-            if player is Archer and player.evade(wizard):
-                wizard.regenerate()
-                break
-            else:
+            if not (isinstance(player, Archer) and player.evade(wizard)):
                 wizard.attack(player)
-                wizard.regenerate()
+            wizard.regenerate()
 
         if player.health > 0:
             print(f"{player.name}'s health is now {player.health}")
