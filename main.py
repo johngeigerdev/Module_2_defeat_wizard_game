@@ -1,6 +1,7 @@
 # Base Character class
 import random
 
+
 class Character:
     def __init__(self, name, health, attack_power):
         self.name = name
@@ -38,16 +39,19 @@ class Character:
 # Implement the Warrior, Mage, and EvilWizard classes below
 # Warrior class (inherits from Character)
 class Warrior(Character):
+
     def __init__(self, name):
         super().__init__(name, health=140, attack_power=25)
+        self.was_deflected = False
 
     def sword_strike (self, opponent):
         opponent.health -= 25
         print(f"{self.name.title()} dealt a devestation sword strike dealing {opponent.name.title()} {self.attack_power} damage!")
     
     def deflect (self, opponent):
-        opponent.attack_power = opponent.attack_power//2 #this cuts opponent's attack power in half rounded down to nearest integer
-        print(f"{self.name.title()} deflected a the strike from {opponent.name.title()}, thus minimizing damage to {opponent.attack_power//2}")
+        reduced_damage = max(1, opponent.attack_power // 2)
+        print(f"{self.name.title()} deflected the strike from {opponent.name.title()}, thus minimizing damage to {reduced_damage}")
+        self.health -= reduced_damage
 
     def unique_abilities(self, opponent):
         print("Choose which unique ability to use: ")
@@ -56,9 +60,12 @@ class Warrior(Character):
 
         choice = input("Enter the number of your choice: ")
         if choice == "1":
+            self.was_deflected = False
             self.sword_strike(opponent)
         elif choice == "2":
+            self.was_deflected = True
             self.deflect(opponent)
+            
         else:
             print("You selected an invalid choice. Defaulting to basic attack.")
             self.attack(opponent)
@@ -112,7 +119,7 @@ class Archer(Character):
         
     def evade(self, opponent):
         #50% chance to evade
-        success = random.random() < 0.5
+        success = True
         if success:
             print(f"{self.name} evaded attack from {opponent.name} and was dealt 0 damage!")
             return True
@@ -130,7 +137,7 @@ class Archer(Character):
             self.double_shot(opponent)
         elif choice == "2":
             evader = self.evade(opponent)
-            if not evader:    #if evader is False, then the opponent will attack
+            if not evader:  #if evader is False, then the opponent will attack
                 opponent.attack(self) #this is the opponent attacking the player
         else:
             print("You selected an invalid choice. Defaulting to attack.")
@@ -164,7 +171,7 @@ class Paladin(Character):
         elif choice == "2":
             self.healing_potion()
         else:
-            print("You selected an invalid choice. Defaulting to {self.attack()}.")
+            print("You selected an invalid choice. Defaulting to basic attack.")
             self.attack(opponent)
 
 def create_character():
@@ -190,6 +197,7 @@ def create_character():
         return Warrior(name)
 
 def battle(player, wizard):
+
     while wizard.health > 0 and player.health > 0:
 
         # if wizard.health > 0:
@@ -217,10 +225,13 @@ def battle(player, wizard):
             player.attack(wizard)
 
         if wizard.health > 0:
-            if not isinstance(player, Archer):
-                wizard.attack(player)
+            if isinstance(player, Warrior) and player.was_deflected:
+                player.was_deflected = False
+            else:
+                if (not isinstance(player, Archer) or not player.evade(wizard)):
+                    wizard.attack(player)   #this is the wizard attacking the player
             wizard.regenerate()
-
+            
         if player.health > 0:
             print(f"{player.name}'s health is now {player.health}")
 
