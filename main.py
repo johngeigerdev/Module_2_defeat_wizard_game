@@ -129,9 +129,9 @@ class Archer(Character):
         if choice == "1":
             self.double_shot(opponent)
         elif choice == "2":
-            if self.evade(opponent):
-                print(f"{self.name} avoided all damage this turn!")
-                return True
+            evader = self.evade(opponent)
+            if not evader:    #if evader is False, then the opponent will attack
+                opponent.attack(self) #this is the opponent attacking the player
         else:
             print("You selected an invalid choice. Defaulting to attack.")
             self.attack(opponent)
@@ -150,6 +150,7 @@ class Paladin(Character):
     def healing_potion (self):
         self_heal = self.health * 0.50 #up to 50% health rejuvenation
         max_heal = min(self_heal, self.max_health - self.health)
+        self.health += max_heal
         print(f"{self.name} healed himself by {max_heal} points.")
 
     def unique_abilities(self, opponent):
@@ -161,10 +162,10 @@ class Paladin(Character):
         if choice == "1":
             self.divine_smite(opponent)
         elif choice == "2":
-            self.healing_potion(opponent)
+            self.healing_potion()
         else:
-            print("You selected an invalid choice. Defaulting to .")
-            self.double_shot(opponent)
+            print("You selected an invalid choice. Defaulting to {self.attack()}.")
+            self.attack(opponent)
 
 def create_character():
     print("Choose your character class:")
@@ -206,13 +207,7 @@ def battle(player, wizard):
         if choice == '1':
             player.attack(wizard)
         elif choice == '2':
-            if isinstance(player, Archer):
-                player.unique_abilities(wizard)
-                #allow Archer to user evade ability directly
-                if player.evade(wizard):
-                    continue #this skips the wizard's turn if evade is successful
-            else:
-                player.unique_abilities(wizard)
+            player.unique_abilities(wizard)
         elif choice == '3':
             player.heal()
         elif choice == '4':
@@ -222,7 +217,7 @@ def battle(player, wizard):
             player.attack(wizard)
 
         if wizard.health > 0:
-            if not (isinstance(player, Archer) and player.evade(wizard)):
+            if not isinstance(player, Archer):
                 wizard.attack(player)
             wizard.regenerate()
 
