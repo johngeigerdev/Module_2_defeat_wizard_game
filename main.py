@@ -119,7 +119,7 @@ class Archer(Character):
         
     def evade(self, opponent):
         #50% chance to evade
-        success = True
+        success = random.random() < 0.5
         if success:
             print(f"{self.name} evaded attack from {opponent.name} and was dealt 0 damage!")
             return True
@@ -155,7 +155,7 @@ class Paladin(Character):
         print(f"{self.name} dealt {opponent.name} {self.attack_power * 2} points in damage!")
 
     def healing_potion (self):
-        self_heal = self.health * 0.50 #up to 50% health rejuvenation
+        self_heal = self.health * 0.10 #up to 10% health rejuvenation
         max_heal = min(self_heal, self.max_health - self.health)
         self.health += max_heal
         print(f"{self.name} healed himself by {max_heal} points.")
@@ -228,10 +228,13 @@ def battle(player, wizard):
             if isinstance(player, Warrior) and player.was_deflected:
                 player.was_deflected = False
             else:
-                if (not isinstance(player, Archer) or not player.evade(wizard)):
-                    wizard.attack(player)   #this is the wizard attacking the player
+                if isinstance(player, Archer):
+                    if not player.evade(wizard):
+                        wizard.attack(player)   #this is the wizard attacking the player
+                else:
+                    wizard.attack(player)
             wizard.regenerate()
-            
+        
         if player.health > 0:
             print(f"{player.name}'s health is now {player.health}")
 
