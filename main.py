@@ -109,11 +109,12 @@ class EvilWizard(Character):
 # Create Archer class
 class Archer(Character):
     def __init__(self, name):
+        self.was_evaded = False
         super().__init__(name, health=125, attack_power=20)
     
     def double_shot(self, opponent):
-        opponent.health -= self.attack_power * 2
-        print(f"{self.name} attacks {opponent.name} for {self.attack_power * 2} damage.")
+        opponent.health -= round(self.attack_power * 1.25)
+        print(f"{self.name} attacks {opponent.name} for {round(self.attack_power * 1.25)} damage.")
         if opponent.health < 0:
             print(f"{opponent.name} has been defeated!")
         
@@ -121,6 +122,7 @@ class Archer(Character):
         #50% chance to evade
         success = random.random() < 0.5
         if success:
+            self.was_evaded = True
             print(f"{self.name} evaded attack from {opponent.name} and was dealt 0 damage!")
             return True
         else:
@@ -151,8 +153,9 @@ class Paladin(Character):
         super().__init__(name, health=185, attack_power=30)
     
     def divine_smite(self, opponent):
-        opponent.health -= self.attack_power * 2
-        print(f"{self.name} dealt {opponent.name} {self.attack_power * 2} points in damage!")
+        attack_damage = round(self.attack_power * 1.25)
+        opponent.health -= attack_damage
+        print(f"{self.name} dealt {opponent.name} {attack_damage} points in damage!")
 
     def healing_potion (self):
         self_heal = self.health * 0.10 #up to 10% health rejuvenation
@@ -227,11 +230,10 @@ def battle(player, wizard):
         if wizard.health > 0:
             if isinstance(player, Warrior) and player.was_deflected:
                 player.was_deflected = False
+            elif isinstance (player, Archer) and player.was_evaded:
+                player.was_evaded = False
             else:
-                if isinstance(player, Archer):
-                    if not player.evade(wizard):
-                        wizard.attack(player)   #this is the wizard attacking the player
-                else:
+                if not isinstance(player, Archer) or not player.was_evaded:
                     wizard.attack(player)
             wizard.regenerate()
         
