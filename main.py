@@ -27,7 +27,7 @@ class Character:
         print(f"{self.name.title()} health is now {self.health}")
 
     def heal(self):
-        max_heal = self.health * 0.25
+        max_heal = round(self.health * 0.25)
         # above is creating a variable of healing amount being 25% of the character's health. 
         #the below uses the 'min' method to choose the smallest value between the heal amount and
         #the difference between max health and current health. It chooses the lesser of these 2 values to ensure
@@ -114,7 +114,7 @@ class Archer(Character):
     
     def double_shot(self, opponent):
         opponent.health -= round(self.attack_power * 1.25)
-        print(f"{self.name} attacks {opponent.name} for {round(self.attack_power * 1.25)} damage.")
+        print(f"{self.name.title()} attacks {opponent.name} with a double-shot for {round(self.attack_power * 1.25)} damage.")
         if opponent.health < 0:
             print(f"{opponent.name} has been defeated!")
         
@@ -123,10 +123,10 @@ class Archer(Character):
         success = random.random() < 0.5
         if success:
             self.was_evaded = True
-            print(f"{self.name} evaded attack from {opponent.name} and was dealt 0 damage!")
+            print(f"{self.name.title()} evaded attack from {opponent.name} and was dealt 0 damage!")
             return True
         else:
-            print(f"{self.name} failed to evade the attack from {opponent.name}")
+            print(f"{self.name.title()} failed to evade the attack from {opponent.name}")
             return False
 
     def unique_abilities(self, opponent):
@@ -229,12 +229,11 @@ def battle(player, wizard):
 
         if wizard.health > 0:
             if isinstance(player, Warrior) and player.was_deflected:
-                player.was_deflected = False
+                pass #do nothing
             elif isinstance (player, Archer) and player.was_evaded:
-                player.was_evaded = False
+                pass
             else:
-                if not isinstance(player, Archer) or not player.was_evaded:
-                    wizard.attack(player)
+                wizard.attack(player)
             wizard.regenerate()
         
         if player.health > 0:
