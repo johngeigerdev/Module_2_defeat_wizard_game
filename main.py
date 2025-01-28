@@ -42,7 +42,7 @@ class Warrior(Character):
 
     def __init__(self, name):
         super().__init__(name, health=140, attack_power=25)
-        self.was_deflected = False
+        self.was_deflected = False #this ensure it always starts the function with was_deflected as False
 
     def sword_strike (self, opponent):
         opponent.health -= 25
@@ -113,21 +113,21 @@ class Archer(Character):
         super().__init__(name, health=125, attack_power=20)
     
     def double_shot(self, opponent):
-        opponent.health -= round(self.attack_power * 1.25)
+        opponent.health -= round(self.attack_power * 1.25) #this does 1.25 times the attack power
         print(f"{self.name.title()} attacks {opponent.name} with a double-shot for {round(self.attack_power * 1.25)} damage.")
         if opponent.health < 0:
             print(f"{opponent.name} has been defeated!")
         
     def evade(self, opponent):
         #50% chance to evade
-        success = random.random() < 0.5
+        success = random.random() < 0.5 #this is a 50% chance of success
         if success:
             self.was_evaded = True
             print(f"{self.name.title()} evaded attack from {opponent.name} and was dealt 0 damage!")
-            return True
+            return True #this will be used in the wizard's attack function to determine if the player evaded the attack or not
         else:
             print(f"{self.name.title()} failed to evade the attack from {opponent.name}")
-            return False
+            return False #sets the player to False so the wizard can attack the player
 
     def unique_abilities(self, opponent):
         print("Choose which unique ability to use: ")
@@ -228,12 +228,12 @@ def battle(player, wizard):
             player.attack(wizard)
 
         if wizard.health > 0:
-            if isinstance(player, Warrior) and player.was_deflected:
-                pass #do nothing
-            elif isinstance (player, Archer) and player.was_evaded:
-                pass
+            if isinstance(player, Warrior) and player.was_deflected: #this is checking if the player is a warrior and if the player was deflected
+                pass #if the player was deflected, then the wizard doesn't attack and it passes to wizard.regenerate()
+            elif isinstance (player, Archer) and player.was_evaded: #this is checking if the player is an archer and if the player evaded the attack
+                pass #if the player evaded the attack, then the wizard doesn't attack and it passes to wizard.regenerate()
             else:
-                wizard.attack(player)
+                wizard.attack(player) #if the player wasn't deflected or evaded, then the wizard attacks the player
             wizard.regenerate()
         
         if player.health > 0:
